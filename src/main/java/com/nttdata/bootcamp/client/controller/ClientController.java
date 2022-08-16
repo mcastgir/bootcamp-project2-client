@@ -17,6 +17,9 @@ package com.nttdata.bootcamp.client.controller;
 import com.nttdata.bootcamp.client.model.document.Client;
 import com.nttdata.bootcamp.client.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,17 +40,20 @@ public class ClientController {
      * @return Mono retorna el Client, tipo Mono
      */
     @PostMapping
-    public Mono<Client> create(@RequestBody Client client){
-        return this.clientService.insert(client);
+    public Mono<ResponseEntity<Client>> create(@RequestBody Client client){
+        return this.clientService.insert(client)
+                .map(c -> new ResponseEntity<>(c, HttpStatus.OK));
     }
+
 
     /**
      * Método que realiza la acción actualizar datos del document
      * @return Mono retorna el Client, tipo Mono
      */
     @PutMapping
-    public Mono<Client> update(@RequestBody Client client){
-        return this.clientService.update(client);
+    public Mono<ResponseEntity<Client>> update(@RequestBody Client client){
+        return this.clientService.update(client)
+                .map(c -> new ResponseEntity<>(c, HttpStatus.OK));
     }
 
     /**
@@ -55,8 +61,9 @@ public class ClientController {
      * @return Mono retorna el Void, tipo Mono
      */
     @DeleteMapping("/{id}")
-    public Mono<Void> delete(@PathVariable String id) {
-        return this.clientService.delete(id);
+    public Mono<ResponseEntity<Void>> delete(@PathVariable String id) {
+        return this.clientService.delete(id)
+                .map(v -> new ResponseEntity<>(v, HttpStatus.OK));
     }
 
     /**
@@ -64,8 +71,11 @@ public class ClientController {
      * @return Mono retorna el Client, tipo String
      */
     @GetMapping("/{id}")
-    public Mono<Client> find(@PathVariable String id) {
-        return this.clientService.find(id);
+    public Mono<ResponseEntity<Client>> find(@PathVariable String id) {
+        return this.clientService.find(id)
+                .map(client -> ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(client));
     }
 
     /**
@@ -73,8 +83,11 @@ public class ClientController {
      * @return Mono retorna el Client, tipo String
      */
     @GetMapping("/findByCode/{code}")
-    public Mono<Client> findByCode(@PathVariable String code) {
-        return this.clientService.findByCode(code);
+    public Mono<ResponseEntity<Client>> findByCode(@PathVariable String code) {
+        return this.clientService.findByCode(code)
+                .map(client -> ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(client));
     }
 
     /**
@@ -82,8 +95,12 @@ public class ClientController {
      * @return Flux retorna el Client, tipo Flux
      */
     @GetMapping
-    public Flux<Client> findAll() {
-        return this.clientService.findAll();
+    public Mono<ResponseEntity<Flux<Client>>> findAll() {
+        return Mono.just(
+                ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(this.clientService.findAll())
+        );
     }
 
 }
